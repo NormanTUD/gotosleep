@@ -1,7 +1,9 @@
 #!/bin/bash
 
 for i in $(pidof gotosleep); do
-	kill $i;
+	if [[ "$i" -ne "$$" ]]; then
+		kill $i;
+	fi
 done
 
 for x in {1..50}; do 

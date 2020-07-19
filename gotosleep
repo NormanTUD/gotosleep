@@ -1,0 +1,18 @@
+#!/bin/bash
+
+for i in $(pidof gotosleep); do
+	kill $i;
+done
+
+for x in {1..50}; do 
+	echo "$x: xdotool key XF86MonBrightnessDown"
+	xdotool key XF86MonBrightnessDown
+done
+
+sleep 600
+
+for x in {1..10}; do
+	sleep 70
+	echo "$x: pactl -- set-sink-volume 0 -1%"
+	pactl -- set-sink-volume 0 -1%
+done

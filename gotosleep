@@ -1,5 +1,33 @@
 #!/bin/bash
 
+TIME_BEFORE_STARTING_SILENCE=600
+TIME_BEFORE_DECREASING_SILENCE=60
+
+DIM_BRIGHTNESS_COMMAND="xdotool key XF86MonBrightnessDown"
+DECREASE_VOLUME="pactl -- set-sink-volume 0 -1%"
+
+while [[ $# -gt 0 ]]
+do
+	key="$1"
+
+	case $key in
+		-s|--sleeptime)
+			TIME_BEFORE_STARTING_SILENCE="$2"
+			shift # past argument
+			shift # past value
+			;;
+		-d|--decreasetime)
+			TIME_BEFORE_DECREASING_SILENCE="$2"
+			shift # past argument
+			shift # past value
+			;;
+		*)
+			echo "Programming error"
+			exit 3
+			;;
+	esac
+done
+
 for i in $(pidof gotosleep); do
 	if [[ "$i" -ne "$$" ]]; then
 		kill $i;
@@ -7,14 +35,15 @@ for i in $(pidof gotosleep); do
 done
 
 for x in {1..50}; do 
-	echo "$x: xdotool key XF86MonBrightnessDown"
-	xdotool key XF86MonBrightnessDown
+	echo "$x: $DIM_BRIGHTNESS_COMMAND"
+	eval $DIM_BRIGHTNESS_COMMAND
 done
 
-sleep 600
+echo "Sleeping $TIME_BEFORE_STARTING_SILENCE"
+sleep $TIME_BEFORE_STARTING_SILENCE
 
-for x in {1..10}; do
-	sleep 70
-	echo "$x: pactl -- set-sink-volume 0 -1%"
-	pactl -- set-sink-volume 0 -1%
+for x in {1..100}; do
+	echo "$x: $DECREASE_VOLUME"
+	eval $DECREASE_VOLUME
+	sleep $TIME_BEFORE_DECREASING_SILENCE
 done
